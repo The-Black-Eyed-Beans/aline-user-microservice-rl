@@ -119,7 +119,7 @@ public class UserController {
         // Create a registration token for a member user when registration is successful.
         UserResponse response = userService.registerUser(registration, user -> {
             if (UserRole.valueOf(user.getRole().toUpperCase()) == UserRole.MEMBER) {
-                confirmationService.sendMemberUserConfirmationEmail((MemberUser) user);
+                //confirmationService.sendMemberUserConfirmationEmail((MemberUser) user);
             }
         });
         URI location = ServletUriComponentsBuilder
