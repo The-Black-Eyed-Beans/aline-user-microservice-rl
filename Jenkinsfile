@@ -11,7 +11,7 @@ pipeline {
             stage("prepare") {
 
                 steps {
-                    sh "echo 'preparing..."
+                    sh "echo 'preparing...'"
                     sh 'git submodule init'
                     sh 'git submodule update'
                 }
