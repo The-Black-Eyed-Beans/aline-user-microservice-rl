@@ -8,6 +8,7 @@ pipeline {
 
     environment {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        REPO_NAME = "user-microservice-rl"
     }
 
     stages {
@@ -44,7 +45,7 @@ pipeline {
 
                 steps {
                     sh 'echo "creating image in $(pwd)..."'
-                    sh 'docker build --file=new-Dockerfile-user --tag="user-microservice-rl:$BUILD_ID" .'
+                    sh 'docker build --file=new-Dockerfile-user --tag="$REPO_NAME:$BUILD_ID" .'
                     sh "docker image ls"
                 }
 
@@ -55,12 +56,19 @@ pipeline {
                 steps {
 
                     sh "echo 'pushing to ECR...'"
-                    
-                    script {
-                        docker.withRegistry("${env.AWS_ACCOUNT_ID}.dkr.ecr.us-west-1.amazonaws.com/user-microservice-rl", 'ecr:us-west-1:AWS_Ricky') {
-                            docker.image("user-microservice-rl:${env.BUILD_ID}").push()
-                        }
+
+                    withAWS(credentials: 'AWS_Ricky', region: 'us-west-1'){
+
+                        sh 'aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin "$(AWS_ACCOUNT_ID).dkr.ecr.us-west-1.amazonaws.com"'
+                        sh 'docker push "$(AWS_ACCOUNT_ID).dkr.ecr.us-west-1.amazonaws.com/$REPO_NAME"'
+
                     }
+                    
+                    // script {
+                    //     docker.withRegistry("${env.AWS_ACCOUNT_ID}.dkr.ecr.us-west-1.amazonaws.com/user-microservice-rl", 'ecr:us-west-1:AWS_Ricky') {
+                    //         docker.image("user-microservice-rl:${env.BUILD_ID}").push()
+                    //     }
+                    // }
 
                 }
 
