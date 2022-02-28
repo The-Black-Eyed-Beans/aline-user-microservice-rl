@@ -53,11 +53,11 @@ pipeline {
             stage("push to ECR") {
 
                 steps {
-                    
+
                     sh "echo 'pushing to ECR...'"
                     
                     script {
-                        docker.withRegistry('${env.AWS_ACCOUNT_ID}.dkr.ecr.us-west-1.amazonaws.com/user-microservice-rl', 'ecr:us-west-1:AWS_Ricky') {
+                        docker.withRegistry("${env.AWS_ACCOUNT_ID}.dkr.ecr.us-west-1.amazonaws.com/user-microservice-rl", 'ecr:us-west-1:AWS_Ricky') {
                             docker.image("user-microservice-rl:${env.BUILD_ID}").push()
                         }
                     }
