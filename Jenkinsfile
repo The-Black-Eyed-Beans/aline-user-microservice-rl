@@ -14,7 +14,7 @@ pipeline {
 
     stages {
 
-            stage("prepare") {
+            stage("Prepare") {
 
                 steps {
                     sh "echo 'preparing...'"
@@ -24,7 +24,11 @@ pipeline {
 
             }
 
-            stage("test") {
+            stage("Test") {
+                sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work?
+            }
+
+            stage("Build") {
 
                 steps {
                     sh "echo 'testing...'"
@@ -34,15 +38,8 @@ pipeline {
 
             }
 
-            stage("build") {
 
-                steps {
-                    sh "echo 'building...'"
-                }
-
-            }
-
-            stage("create image") {
+            stage("Dockerize") {
 
                 steps {
                     sh 'echo "creating image in $(pwd)..."'
@@ -52,7 +49,7 @@ pipeline {
 
             }
 
-            stage("push to ECR") {
+            stage("Push") {
 
                 steps {
 
@@ -64,12 +61,6 @@ pipeline {
                         sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$BUILD_ID"'
 
                     }
-                    
-                    // script {
-                    //     docker.withRegistry("${env.AWS_ACCOUNT_ID}.dkr.ecr.$AWS_REGION.amazonaws.com/user-microservice-rl", 'ecr:$AWS_REGION:AWS_Ricky') {
-                    //         docker.image("user-microservice-rl:${env.BUILD_ID}").push()
-                    //     }
-                    // }
 
                 }
 
@@ -79,13 +70,8 @@ pipeline {
 
     post {
 
-        success {
-            sh "echo 'Success!'"
-            sh 'docker rmi "$REPO_NAME:$BUILD_ID"' 
-        }
-
-        failure {
-            sh 'docker rmi "$REPO_NAME:$BUILD_ID"'
+        always {
+            sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$BUILD_ID"' 
         }
 
     }
