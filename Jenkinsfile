@@ -59,8 +59,8 @@ pipeline {
 
                     withAWS(credentials: 'AWS_Ricky', region: 'us-west-1'){
 
-                        sh 'aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin "$(AWS_ACCOUNT_ID).dkr.ecr.us-west-1.amazonaws.com"'
-                        sh 'docker push "$(AWS_ACCOUNT_ID).dkr.ecr.us-west-1.amazonaws.com/$REPO_NAME"'
+                        sh 'aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.us-west-1.amazonaws.com"'
+                        sh 'docker push "$AWS_ACCOUNT_ID.dkr.ecr.us-west-1.amazonaws.com/$REPO_NAME"'
 
                     }
                     
@@ -80,7 +80,11 @@ pipeline {
 
         success {
             sh "echo 'Success!'"
-            sh 'docker rmi "user-rl:$BUILD_ID"' 
+            sh 'docker rmi "$REPO_NAME:$BUILD_ID"' 
+        }
+
+        failure {
+            sh 'docker rmi "$REPO_NAME:$BUILD_ID"'
         }
 
     }
