@@ -6,6 +6,10 @@ pipeline {
         maven "Maven 3.8.4"
     }
 
+    environment {
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+    }
+
     stages {
 
             stage("prepare") {
@@ -40,7 +44,7 @@ pipeline {
 
                 steps {
                     sh 'echo "creating image in $(pwd)..."'
-                    sh 'docker build --file=new-Dockerfile-user --tag="user-rl:$BUILD_ID" .'
+                    sh 'docker build --file=new-Dockerfile-user --tag="user-microservice-rl:$BUILD_ID" .'
                     sh "docker image ls"
                 }
 
@@ -50,7 +54,12 @@ pipeline {
 
                 steps {
                     sh "echo 'pushing to ECR...'"
-                    sh "aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com "
+                    
+                    docker.withRegistry('${env.AWS_ACCOUNT_ID}.dkr.ecr.us-west-1.amazonaws.com/user-microservice-rl', 'ecr:us-west-1:AWS_Ricky') {
+                        docker.image("user-microservice-rl:${env.BUILD_ID}").push()
+                    }
+
+
                 }
 
             }
