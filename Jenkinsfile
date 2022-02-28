@@ -39,7 +39,9 @@ pipeline {
             stage("create image") {
 
                 steps {
-                    sh "echo 'creating image...'"
+                    sh 'echo "creating image in $(pwd)..."'
+                    sh "docker build --file=new-Dockerfile-user --tag=user-rl:latest"
+                    sh "docker image ls"
                 }
 
             }
