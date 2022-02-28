@@ -28,6 +28,7 @@ pipeline {
 
                 steps {
                     sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work?
+                    sh 'mvn clean test'
                 }
                 
             }
