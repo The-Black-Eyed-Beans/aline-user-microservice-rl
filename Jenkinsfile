@@ -37,7 +37,7 @@ pipeline {
                 steps {
 
                     withSonarQubeEnv('SonarQube-Server') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectName="$REPO_NAME"'
+                        sh 'mvn sonar:sonar -Dsonar.projectName="$REPO_NAME"'
 
                     }
                 }
