@@ -29,7 +29,7 @@ pipeline {
                 steps {
                     sh "echo 'testing...'"
                     sh 'mvn clean' 
-                    sh 'mvn package -DtestFailureIgnore=true'
+                    sh 'mvn package -Dmaven.test.failure.ignore=true'
                 }
             }
 
