@@ -8,6 +8,9 @@ pipeline {
 
     environment {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        JFROG_USER = credentials('JFROG_USER')
+        JFROG_PW = credentials('JFROG_PW')
+        JFROG_HOST = credentials('JFROG_HOST')
         AWS_REGION = "us-west-1"
         REPO_NAME = "user-microservice-rl"
     }
@@ -53,7 +56,9 @@ pipeline {
             steps {
                 sh 'echo "creating image in $(pwd)..."'
                 sh 'docker build --file=new-Dockerfile-user --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" \
-                --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest" .'
+                --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest" \
+                --tag="$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)" \
+                --tag="$JFROG_HOST/$REPO_NAME:latest" .'
                 sh "docker image ls"
             }
 
@@ -66,6 +71,10 @@ pipeline {
                     sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
                     sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
                 }
+
+                sh 'docker login -u $JFROG_USER -p $JFROG_PW $JFROG_HOST'
+                sh 'docker image push "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"'
+                sh 'docker image push "$JFROG_HOST/$REPO_NAME:latest"'
             }
         }
     }
@@ -74,6 +83,8 @@ pipeline {
         always {
             sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
             sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"' 
+            sh 'docker rmi "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"' 
+            sh 'docker rmi "$JFROG_HOST/$REPO_NAME:latest"'
         }
 
     }
