@@ -57,8 +57,8 @@ pipeline {
                 sh 'echo "creating image in $(pwd)..."'
                 sh 'docker build --file=new-Dockerfile-user --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" \
                 --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest" \
-                --tag="$JFROG_HOST/$REPO_NAME/$REPO_NAME:$(git rev-parse HEAD)" \
-                --tag="$JFROG_HOST/$REPO_NAME/$REPO_NAME:latest" .'
+                --tag="$JFROG_HOST/microservices/$REPO_NAME:$(git rev-parse HEAD)" \
+                --tag="$JFROG_HOST/microservices/$REPO_NAME:latest" .'
                 sh "docker image ls"
             }
 
@@ -73,8 +73,8 @@ pipeline {
                 }
 
                 sh 'docker login -u $JFROG_USER -p $JFROG_PW $JFROG_HOST && \
-                docker image push "$JFROG_HOST/$REPO_NAME/$REPO_NAME:$(git rev-parse HEAD)" && \
-                docker image push "$JFROG_HOST/$REPO_NAME/$REPO_NAME:latest"'
+                docker image push "$JFROG_HOST/microservices/$REPO_NAME:$(git rev-parse HEAD)" && \
+                docker image push "$JFROG_HOST/microservices/$REPO_NAME:latest"'
             }
         }
     }
@@ -83,8 +83,8 @@ pipeline {
         always {
             sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
             sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"' 
-            sh 'docker rmi "$JFROG_HOST/$REPO_NAME/$REPO_NAME:$(git rev-parse HEAD)"' 
-            sh 'docker rmi "$JFROG_HOST/$REPO_NAME/$REPO_NAME:latest"'
+            sh 'docker rmi "$JFROG_HOST/microservices/$REPO_NAME:$(git rev-parse HEAD)"' 
+            sh 'docker rmi "$JFROG_HOST/microservices/$REPO_NAME:latest"'
         }
 
     }
