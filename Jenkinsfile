@@ -55,11 +55,11 @@ pipeline {
         stage("Dockerize") {
             steps {
                 sh 'echo "creating image in $(pwd)..."'
-                sh 'sudo docker build --file=new-Dockerfile-user --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" \
+                sh 'docker build --file=new-Dockerfile-user --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" \
                 --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest" \
                 --tag="$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)" \
                 --tag="$JFROG_HOST/$REPO_NAME:latest" .'
-                sh "sudo docker image ls"
+                sh "docker image ls"
             }
 
         }
@@ -67,24 +67,24 @@ pipeline {
         stage("Push") {
             steps {
                 withAWS(credentials: 'AWS_Ricky', region: 'us-west-1'){
-                    sh 'aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"'
-                    sh 'sudo docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
-                    sh 'sudo docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
+                    sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"'
+                    sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
+                    sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
                 }
 
-                sh 'sudo docker login -u $JFROG_USER -p $JFROG_PW $JFROG_HOST'
-                sh 'sudo docker image push "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"'
-                sh 'sudo docker image push "$JFROG_HOST/$REPO_NAME:latest"'
+                sh 'docker login -u $JFROG_USER -p $JFROG_PW $JFROG_HOST'
+                sh 'docker image push "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"'
+                sh 'docker image push "$JFROG_HOST/$REPO_NAME:latest"'
             }
         }
     }
 
     post {
         always {
-            sh 'sudo docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
-            sh 'sudo docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"' 
-            sh 'sudo docker rmi "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"' 
-            sh 'sudo docker rmi "$JFROG_HOST/$REPO_NAME:latest"'
+            sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
+            sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"' 
+            sh 'docker rmi "$JFROG_HOST/$REPO_NAME:$(git rev-parse HEAD)"' 
+            sh 'docker rmi "$JFROG_HOST/$REPO_NAME:latest"'
         }
 
     }
